@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Role = "ADMIN" | "TEACH" | "STUDENT" | "";
-
+type User = {
+  role: "ADMIN" | "TEACH" | "STUDENT";
+  name: string;
+};
 export default function Header() {
   const router = useRouter();
   const [role, setRole] = useState<Role>("");
+  const [user, setUser] = useState<User | null>(null);
 
   // ===== LẤY ROLE TỪ COOKIE (CLIENT ONLY – KHÔNG LỖI) =====
   useEffect(() => {
@@ -23,6 +27,12 @@ export default function Header() {
     ) {
       setRole(roleCookie);
     }
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data));
   }, []);
 
   const go = (path: string) => router.push(path);
@@ -104,9 +114,9 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <h2 className="text-sm font-bold text-gray-700">
-                {role === "ADMIN" && "Admin"}
-                {role === "TEACH" && "Giáo viên"}
-                {role === "STUDENT" && "Sinh viên"}
+                {role === "ADMIN" && <span>{user?.name}</span>}
+                {role === "TEACH" && <span>{user?.name}</span>}
+                {role === "STUDENT" && <span>{user?.name}</span>}
               </h2>
               <p className="text-xs text-blue-500 font-semibold">
                 ROLE: {role}
